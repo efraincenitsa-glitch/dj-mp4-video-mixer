@@ -160,6 +160,13 @@ function autoMixStep(){
   const a = state.decks.A.video;
   const b = state.decks.B.video;
 
+  console.log(
+  "AUTOMIX",
+  a.currentTime,
+  a.paused,
+  state.transitioning
+);
+
   if(state.transitioning){
     return;
   }
@@ -189,6 +196,12 @@ if(
 function startAutoTransition(fromDeck, toDeck){
 
 log(`INICIANDO TRANSICION ${fromDeck} -> ${toDeck}`);
+
+console.log(
+  "TRANSICION",
+  fromDeck,
+  toDeck
+);
 
   state.transitioning = true;
 
@@ -221,6 +234,11 @@ toVideo.onloadeddata = async () => {
   try{
 
     await toVideo.play();
+
+console.log(
+  "PLAY OK",
+  toDeck
+);
 
     log(
       `PLAY AUTOMATICO OK`
