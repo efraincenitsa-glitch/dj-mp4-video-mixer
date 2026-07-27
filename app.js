@@ -163,7 +163,9 @@ function autoMixStep(){
   const a = state.decks.A.video;
   const b = state.decks.B.video;
 
-
+log(
+ `Mix Time: ${state.mixLeadTime}`
+);
 
   if(state.transitioning){
     return;
@@ -410,7 +412,11 @@ crossfader.oninput = updateAudioMix;
 
 if(mixLeadTime && mixLeadTimeLabel){
 
-  // Mostrar valor inicial al cargar
+  state.mixLeadTime =
+    Number(
+      mixLeadTime.value
+    );
+
   mixLeadTimeLabel.textContent =
     `${state.mixLeadTime} seg`;
 
