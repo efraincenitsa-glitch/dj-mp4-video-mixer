@@ -164,29 +164,31 @@ function autoMixStep(){
     return;
   }
 
-  if(
+if(
     a.src &&
     !a.paused &&
-    a.duration &&
-    a.duration - a.currentTime < 120 &&
+    a.currentTime > 15 &&
     state.tracks.length > 1
-  ){
+)
+  {
       startAutoTransition('A','B');
       return;
   }
 
-  if(
+if(
     b.src &&
     !b.paused &&
-    b.duration &&
-    b.duration - b.currentTime < 120 &&
+    b.currentTime > 15 &&
     state.tracks.length > 1
-  ){
+)
+  {
       startAutoTransition('B','A');
       return;
   }
 }
 function startAutoTransition(fromDeck, toDeck){
+
+log(`INICIANDO TRANSICION ${fromDeck} -> ${toDeck}`);
 
   state.transitioning = true;
 
@@ -202,82 +204,96 @@ function startAutoTransition(fromDeck, toDeck){
   const nextIndex =
     (currentIndex + 1) % state.tracks.length;
 
-  loadTrackToDeck(
-    nextIndex,
-    toDeck,
-    false
-  );
+loadTrackToDeck(
+  nextIndex,
+  toDeck,
+  true
+);
 
-  setTimeout(async () => {
+console.log(
+  "VIDEO CARGADO:",
+  toDeck,
+  nextIndex
+);
 
-    try{
+toVideo.onloadeddata = async () => {
 
-      toVideo.currentTime = 0;
+  try{
 
-      await toVideo.play();
+    await toVideo.play();
 
-      log(
-        `Auto Mix: mezclando Deck ${fromDeck} hacia Deck ${toDeck}.`
-      );
+    log(
+      `PLAY AUTOMATICO OK`
+    );
 
-      const duration = 10000;
+    log(
+      `Auto Mix: mezclando Deck ${fromDeck} hacia Deck ${toDeck}.`
+    );
 
-      const start = performance.now();
+    const duration = 10000;
 
-      function fade(now){
+    const start = performance.now();
 
-        const progress =
-          Math.min(
-            1,
-            (now - start) / duration
+    function fade(now){
+
+      const progress =
+        Math.min(
+          1,
+          (now - start) / duration
+        );
+
+      if(
+        fromDeck === 'A' &&
+        toDeck === 'B'
+      ){
+        crossfader.value =
+          Math.round(progress * 100);
+      }
+      else{
+        crossfader.value =
+          Math.round(
+            (1 - progress) * 100
           );
-
-        if(
-          fromDeck === 'A' &&
-          toDeck === 'B'
-        ){
-          crossfader.value =
-            Math.round(progress * 100);
-        }
-        else{
-          crossfader.value =
-            Math.round(
-              (1 - progress) * 100
-            );
-        }
-
-        updateAudioMix();
-
-        if(progress < 1){
-          requestAnimationFrame(fade);
-        }
-        else{
-
-          fromVideo.pause();
-
-          fromVideo.currentTime = 0;
-
-          state.transitioning = false;
-
-          log(
-            `Auto Mix: Deck ${toDeck} ahora es principal.`
-          );
-        }
       }
 
-      requestAnimationFrame(fade);
+      updateAudioMix();
 
+      if(progress < 1){
+
+        requestAnimationFrame(fade);
+
+      }
+      else{
+
+        fromVideo.pause();
+
+        fromVideo.currentTime = 0;
+
+        state.transitioning = false;
+
+        log(
+          `Auto Mix completado.`
+        );
+      }
     }
-    catch(error){
 
-      state.transitioning = false;
+    requestAnimationFrame(fade);
 
-      log(
-        `Error iniciando transición automática.`
-      );
-    }
+    toVideo.onloadeddata = null;
 
-  }, 500);
+  }
+  catch(error){
+
+    console.error(error);
+
+    state.transitioning = false;
+
+    log(
+      `ERROR AUTOTRANSITION: ${error.message}`
+    );
+  }
+};  
+
 }
 
   function currentTrackIndex(deck){
@@ -384,8 +400,8 @@ function startAutoTransition(fromDeck, toDeck){
     const a = state.decks.A.video;
     const b = state.decks.B.video;
 
-    if(!a.src && !b.src){
-      loadTrackToDeck(0, 'A', false);
+if(!a.src && !b.src){
+  loadTrackToDeck(0, 'A', true);
 
       setTimeout(async () => {
         try {
