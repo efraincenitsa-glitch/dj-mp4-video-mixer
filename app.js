@@ -168,7 +168,7 @@ function autoMixStep(){
     a.src &&
     !a.paused &&
     a.duration &&
-    a.duration - a.currentTime < 10 &&
+    a.duration - a.currentTime < 120 &&
     state.tracks.length > 1
   ){
       startAutoTransition('A','B');
@@ -179,7 +179,7 @@ function autoMixStep(){
     b.src &&
     !b.paused &&
     b.duration &&
-    b.duration - b.currentTime < 10 &&
+    b.duration - b.currentTime < 120 &&
     state.tracks.length > 1
   ){
       startAutoTransition('B','A');
