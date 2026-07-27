@@ -11,6 +11,8 @@
   const recordBtn = $('recordBtn');
   const fullscreenBtn = $('fullscreenBtn');
   const autoMixBtn = $('autoMixBtn');
+  const mixLeadTime = $('mixLeadTime');
+  const mixLeadTimeLabel = $('mixLeadTimeLabel');
   const installBtn = $('installBtn');
 
   const effects = [
@@ -27,6 +29,7 @@ const state = {
   recorder: null,
   chunks: [],
   autoMix: false,
+  mixLeadTime: 10,
 
   transitioning: false,
 
@@ -170,7 +173,9 @@ if(
     a.src &&
     !a.paused &&
     a.duration &&
-    (a.duration - a.currentTime) < 10 &&
+    (a.duration - a.currentTime)
+    <
+    state.mixLeadTime &&
     state.tracks.length > 1
 )
   {
@@ -182,7 +187,9 @@ if(
     b.src &&
     !b.paused &&
     b.duration &&
-    (b.duration - b.currentTime) < 10 &&
+    (b.duration - b.currentTime)
+    <
+    state.mixLeadTime &&
     state.tracks.length > 1
 )
   {
@@ -191,6 +198,8 @@ if(
   }
 }
 function startAutoTransition(fromDeck, toDeck){
+
+  if(state.transitioning) return;
 
 log(`INICIANDO TRANSICION ${fromDeck} -> ${toDeck}`);
 
@@ -397,7 +406,35 @@ else{
     $('filter'+name).oninput = (e)=>{ state.decks[name].filterVal = Number(e.target.value); updateAudioMix(); };
     $('pan'+name).oninput = (e)=>{ state.decks[name].panVal = Number(e.target.value); updateAudioMix(); };
   }
-  crossfader.oninput = updateAudioMix;
+crossfader.oninput = updateAudioMix;
+
+if(mixLeadTime && mixLeadTimeLabel){
+
+  // Mostrar valor inicial al cargar
+  mixLeadTimeLabel.textContent =
+    `${state.mixLeadTime} seg`;
+
+  mixLeadTime.oninput = () => {
+
+    state.mixLeadTime =
+      Number(mixLeadTime.value);
+
+    if(state.mixLeadTime >= 60){
+
+      mixLeadTimeLabel.textContent =
+        `${(state.mixLeadTime / 60).toFixed(1)} min`;
+
+    }else{
+
+      mixLeadTimeLabel.textContent =
+        `${state.mixLeadTime} seg`;
+
+    }
+
+  };
+
+}
+
 
   fullscreenBtn.onclick = () => { if(canvas.requestFullscreen) canvas.requestFullscreen(); };
   autoMixBtn.onclick = async () => {
