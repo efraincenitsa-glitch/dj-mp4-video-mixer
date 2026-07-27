@@ -160,12 +160,7 @@ function autoMixStep(){
   const a = state.decks.A.video;
   const b = state.decks.B.video;
 
-  console.log(
-  "AUTOMIX",
-  a.currentTime,
-  a.paused,
-  state.transitioning
-);
+
 
   if(state.transitioning){
     return;
@@ -174,7 +169,8 @@ function autoMixStep(){
 if(
     a.src &&
     !a.paused &&
-    a.currentTime > 15 &&
+    a.duration &&
+    (a.duration - a.currentTime) < 10 &&
     state.tracks.length > 1
 )
   {
@@ -185,7 +181,8 @@ if(
 if(
     b.src &&
     !b.paused &&
-    b.currentTime > 15 &&
+    b.duration &&
+    (b.duration - b.currentTime) < 10 &&
     state.tracks.length > 1
 )
   {
@@ -197,11 +194,7 @@ function startAutoTransition(fromDeck, toDeck){
 
 log(`INICIANDO TRANSICION ${fromDeck} -> ${toDeck}`);
 
-console.log(
-  "TRANSICION",
-  fromDeck,
-  toDeck
-);
+
 
   state.transitioning = true;
 
@@ -223,11 +216,7 @@ loadTrackToDeck(
   true
 );
 
-console.log(
-  "VIDEO CARGADO:",
-  toDeck,
-  nextIndex
-);
+
 
 toVideo.onloadeddata = async () => {
 
@@ -235,10 +224,7 @@ toVideo.onloadeddata = async () => {
 
     await toVideo.play();
 
-console.log(
-  "PLAY OK",
-  toDeck
-);
+
 
     log(
       `PLAY AUTOMATICO OK`
@@ -248,7 +234,7 @@ console.log(
       `Auto Mix: mezclando Deck ${fromDeck} hacia Deck ${toDeck}.`
     );
 
-    const duration = 10000;
+    const duration = 5000;
 
     const start = performance.now();
 
@@ -260,19 +246,32 @@ console.log(
           (now - start) / duration
         );
 
-      if(
-        fromDeck === 'A' &&
-        toDeck === 'B'
-      ){
-        crossfader.value =
-          Math.round(progress * 100);
-      }
-      else{
-        crossfader.value =
-          Math.round(
-            (1 - progress) * 100
-          );
-      }
+if(
+  fromDeck === 'A' &&
+  toDeck === 'B'
+){
+
+  const value =
+    Math.round(progress * 100);
+
+  crossfader.value = value;
+
+  crossValue.textContent =
+    `${100 - value} / ${value}`;
+}
+
+else{
+
+  const value =
+    Math.round(
+      (1 - progress) * 100
+    );
+
+  crossfader.value = value;
+
+  crossValue.textContent =
+    `${value} / ${100 - value}`;
+}
 
       updateAudioMix();
 
