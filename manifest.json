@@ -1,0 +1,15 @@
+{
+  "name": "DJ MP4 Video Mixer Pro",
+  "short_name": "DJ Video Mix",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#070914",
+  "theme_color": "#0b0f1a",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
